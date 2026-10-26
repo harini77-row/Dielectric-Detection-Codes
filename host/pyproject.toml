@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pgdd"
+version = "0.1.0"
+description = "Provenance-gated dielectric drift detection - untrusted host (Raspberry Pi 5)"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24", "scipy>=1.10", "matplotlib>=3.6"]
+
+[project.optional-dependencies]
+pi = ["spidev>=3.6", "gpiod>=2.1"]
+test = ["pytest>=7"]
+
+[project.scripts]
+pgdd = "pgdd.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["pgdd*"]

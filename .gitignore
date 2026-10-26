@@ -1,0 +1,10 @@
+build/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+runs/
+phase0_out/
+phase0_synth/
+phase0_rehearsal/
+*.uf2
+*.elf

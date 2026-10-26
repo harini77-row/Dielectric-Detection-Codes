@@ -1,0 +1,68 @@
+; consistency.pio — Consistency Comparator (trusted admission gate)
+;
+; Input  (TX FIFO, 8 words per record, pushed by the record builder):
+;   m0a m0b   VMAG view A / view B quantised on grid 0
+;   m1a m1b   VMAG view A / view B quantised on grid 1 (offset by half a bin)
+;   p0a p0b   VPHS grid 0
+;   p1a p1b   VPHS grid 1
+; Output (RX FIFO): one token 0xFFFFFFFF if and only if
+;   (m0a==m0b OR m1a==m1b) AND (p0a==p0b OR p1a==p1b)
+;
+; The RX FIFO's DREQ paces the token DMA channel, which writes the commit word
+; into the ring slot and chains to the body-copy channel. No token => neither
+; DMA channel ever runs => the slot is never written and never reaches SPI.
+; This program has no instruction that writes to memory; it can only emit or
+; withhold a token.
+
+.program consistency
+.wrap_target
+start:
+    pull block          ; m0a
+    mov x, osr
+    pull block          ; m0b
+    mov y, osr
+    pull block          ; m1a (held in OSR)
+    jmp x!=y mag_g1
+    pull block          ; grid-0 matched: drain m1b
+    jmp phase
+mag_g1:
+    mov x, osr          ; m1a
+    pull block          ; m1b
+    mov y, osr
+    jmp x!=y reject_ph  ; magnitude inconsistent on both grids
+phase:
+    pull block          ; p0a
+    mov x, osr
+    pull block          ; p0b
+    mov y, osr
+    pull block          ; p1a
+    jmp x!=y ph_g1
+    pull block          ; drain p1b
+    jmp accept
+ph_g1:
+    mov x, osr
+    pull block          ; p1b
+    mov y, osr
+    jmp x!=y start      ; phase inconsistent: withhold token
+accept:
+    mov isr, ~null
+    push block          ; token -> RX FIFO -> DREQ
+    jmp start
+reject_ph:
+    pull block          ; drain the 4 phase words to keep framing
+    pull block
+    pull block
+    pull block
+.wrap
+
+% c-sdk {
+#include "hardware/clocks.h"
+static inline void consistency_program_init(PIO pio, uint sm, uint offset) {
+    pio_sm_config c = consistency_program_get_default_config(offset);
+    sm_config_set_out_shift(&c, false, false, 32);   // manual pull
+    sm_config_set_in_shift(&c, false, false, 32);    // manual push
+    sm_config_set_clkdiv(&c, 1.0f);
+    pio_sm_init(pio, sm, offset, &c);
+    pio_sm_set_enabled(pio, sm, true);
+}
+%}

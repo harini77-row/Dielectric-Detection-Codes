@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "author": "pgdd",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-pi-pico", "id": "pico", "top": 0, "left": 0, "attrs": { "env": "micropython-20231227-v1.22.0" } },
+    { "type": "wokwi-potentiometer", "id": "potA", "top": -110, "left": 140, "attrs": { "label": "view A" } },
+    { "type": "wokwi-potentiometer", "id": "potB", "top": -110, "left": 240, "attrs": { "label": "view B" } },
+    { "type": "wokwi-slide-switch", "id": "lock", "top": 160, "left": 180, "attrs": { "label": "PLL lock" } },
+    { "type": "wokwi-led", "id": "ledOk", "top": 60, "left": 200, "attrs": { "color": "green", "label": "commit" } },
+    { "type": "wokwi-led", "id": "ledRej", "top": 60, "left": 260, "attrs": { "color": "red", "label": "reject" } },
+    { "type": "wokwi-resistor", "id": "r1", "top": 120, "left": 200, "rotate": 90, "attrs": { "value": "330" } },
+    { "type": "wokwi-resistor", "id": "r2", "top": 120, "left": 260, "rotate": 90, "attrs": { "value": "330" } }
+  ],
+  "connections": [
+    [ "potA:VCC", "pico:3V3", "red", [] ],
+    [ "potA:GND", "pico:GND.8", "black", [] ],
+    [ "potA:SIG", "pico:GP26", "green", [] ],
+    [ "potB:VCC", "pico:3V3", "red", [] ],
+    [ "potB:GND", "pico:GND.8", "black", [] ],
+    [ "potB:SIG", "pico:GP27", "green", [] ],
+    [ "lock:1", "pico:3V3", "red", [] ],
+    [ "lock:2", "pico:GP16", "orange", [] ],
+    [ "ledOk:A", "pico:GP15", "green", [] ],
+    [ "ledOk:C", "r1:1", "black", [] ],
+    [ "r1:2", "pico:GND.4", "black", [] ],
+    [ "ledRej:A", "pico:GP14", "red", [] ],
+    [ "ledRej:C", "r2:1", "black", [] ],
+    [ "r2:2", "pico:GND.4", "black", [] ]
+  ],
+  "dependencies": {}
+}
