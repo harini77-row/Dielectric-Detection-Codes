@@ -1,4 +1,4 @@
-# PGDD — provenance-gated dielectric drift detection
+#Provenance-gated Dielectric Drift Detection
 
 Code for the sealed-container dielectric-signature project: trusted acquisition on a
 Raspberry Pi Pico 2 (RP2350), untrusted inversion host on a Raspberry Pi 5.
